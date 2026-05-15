@@ -1,0 +1,209 @@
+{
+    "name": "vscode-vmware-controller",
+    "displayName": "VMware Controller",
+    "description": "Control local VMware virtual machines from VS Code.",
+    "version": "1.0.0",
+    "publisher": "local",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/local/vscode-vmware-controller"
+    },
+    "engines": {
+        "vscode": "^1.90.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [],
+    "main": "./out/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "vmwareController",
+                    "title": "VMware",
+                    "icon": "$(vm)"
+                }
+            ]
+        },
+        "views": {
+            "vmwareController": [
+                {
+                    "id": "vmwareController.vms",
+                    "name": "Virtual Machines"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "vmwareController.refresh",
+                "title": "Refresh",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "vmwareController.startOrResume",
+                "title": "Start / Resume VM",
+                "icon": "$(debug-start)"
+            },
+            {
+                "command": "vmwareController.suspend",
+                "title": "Suspend VM",
+                "icon": "$(debug-pause)"
+            },
+            {
+                "command": "vmwareController.stopSoft",
+                "title": "Stop VM Soft",
+                "icon": "$(circle-slash)"
+            },
+            {
+                "command": "vmwareController.stopHard",
+                "title": "Stop VM Hard",
+                "icon": "$(primitive-square)"
+            },
+            {
+                "command": "vmwareController.resetSoft",
+                "title": "Reset VM Soft",
+                "icon": "$(debug-restart)"
+            },
+            {
+                "command": "vmwareController.resetHard",
+                "title": "Reset VM Hard",
+                "icon": "$(sync)"
+            },
+            {
+                "command": "vmwareController.openVmx",
+                "title": "Open VMX File",
+                "icon": "$(file-code)"
+            },
+            {
+                "command": "vmwareController.revealFolder",
+                "title": "Reveal VM Folder",
+                "icon": "$(folder-opened)"
+            },
+            {
+                "command": "vmwareController.configure",
+                "title": "Configure",
+                "icon": "$(settings-gear)"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "vmwareController.refresh",
+                    "when": "view == vmwareController.vms",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "vmwareController.configure",
+                    "when": "view == vmwareController.vms",
+                    "group": "navigation@2"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "vmwareController.startOrResume",
+                    "when": "view == vmwareController.vms && viewItem =~ /vmwareVm/",
+                    "group": "1_power@1"
+                },
+                {
+                    "command": "vmwareController.suspend",
+                    "when": "view == vmwareController.vms && viewItem == vmwareVm.running",
+                    "group": "1_power@2"
+                },
+                {
+                    "command": "vmwareController.stopSoft",
+                    "when": "view == vmwareController.vms && viewItem == vmwareVm.running",
+                    "group": "1_power@3"
+                },
+                {
+                    "command": "vmwareController.stopHard",
+                    "when": "view == vmwareController.vms && viewItem == vmwareVm.running",
+                    "group": "1_power@4"
+                },
+                {
+                    "command": "vmwareController.resetSoft",
+                    "when": "view == vmwareController.vms && viewItem == vmwareVm.running",
+                    "group": "2_reset@1"
+                },
+                {
+                    "command": "vmwareController.resetHard",
+                    "when": "view == vmwareController.vms && viewItem == vmwareVm.running",
+                    "group": "2_reset@2"
+                },
+                {
+                    "command": "vmwareController.openVmx",
+                    "when": "view == vmwareController.vms && viewItem =~ /vmwareVm/",
+                    "group": "3_file@1"
+                },
+                {
+                    "command": "vmwareController.revealFolder",
+                    "when": "view == vmwareController.vms && viewItem =~ /vmwareVm/",
+                    "group": "3_file@2"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "VMware Controller",
+            "properties": {
+                "vmware.vmrunPath": {
+                    "type": "string",
+                    "default": "vmrun",
+                    "description": "Path to VMware vmrun executable."
+                },
+                "vmware.scanRoots": {
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Folders to recursively scan for .vmx files."
+                },
+                "vmware.vms": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Manually configured VMware virtual machines.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "path": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "path"
+                        ]
+                    }
+                },
+                "vmware.refreshIntervalMs": {
+                    "type": "number",
+                    "default": 3000,
+                    "minimum": 1000,
+                    "description": "Polling interval for refreshing VM status."
+                },
+                "vmware.maxScanDepth": {
+                    "type": "number",
+                    "default": 5,
+                    "minimum": 1,
+                    "maximum": 12,
+                    "description": "Maximum depth when scanning folders for .vmx files."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "package": "npm run compile && vsce package",
+        "vsix:install": "code --install-extension vscode-vmware-controller-1.0.0.vsix"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@types/vscode": "^1.90.0",
+        "@vscode/vsce": "^3.9.1",
+        "typescript": "^5.0.0"
+    }
+}
